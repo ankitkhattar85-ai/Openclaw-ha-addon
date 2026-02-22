@@ -1,6 +1,6 @@
 # OpenClaw Home Assistant Add-on
 name: "OpenClaw"
-version: "1.0.2"
+version: "1.0.3"
 slug: "openclaw"
 description: "AI assistant that manages your smart home via Home Assistant"
 url: "https://github.com/openclaw/openclaw"
