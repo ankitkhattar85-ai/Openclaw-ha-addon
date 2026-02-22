@@ -1,21 +1,21 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-# Install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install dependencies (Alpine-based)
+RUN apk add --no-cache \
     curl \
     git \
     bash \
     jq \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    python3 \
+    npm \
+    nodejs
 
-# Install Node.js 22
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
+# Verify node version, upgrade if needed
+RUN node --version && npm --version
 
-# Install OpenClaw
+# Install OpenClaw globally
 RUN npm install -g openclaw@latest
 
 # Create data directory
