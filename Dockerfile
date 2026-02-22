@@ -1,19 +1,19 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-# Install Node.js 22
-RUN apk add --no-cache \
-    nodejs \
-    npm \
-    git \
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    git \
     bash \
-    python3 \
-    make \
-    g++
+    jq \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Node 22 via n if system node is too old
-RUN npm install -g n && n 22 || true
+# Install Node.js 22
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install OpenClaw
 RUN npm install -g openclaw@latest
