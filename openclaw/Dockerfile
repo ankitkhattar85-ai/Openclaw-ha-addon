@@ -1,19 +1,33 @@
 ARG BUILD_FROM
-FROM node:22-alpine AS node
-
 FROM ${BUILD_FROM}
 
-# Copy Node.js from official image
-COPY --from=node /usr/local/bin/node /usr/local/bin/node
-COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
-RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
-    && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+# Install build deps + cmake (needed for koffi native module)
+RUN apk add --no-cache \
+    bash \
+    jq \
+    git \
+    curl \
+    ca-certificates \
+    python3 \
+    make \
+    g++ \
+    cmake \
+    linux-headers \
+    libstdc++ \
+    libgcc
 
-# Install minimal deps
-RUN apk add --no-cache bash jq git curl libstdc++ libgcc
+# Install Node.js 22 via unofficial builds for Alpine
+RUN curl -fsSL https://unofficial-builds.nodejs.org/download/release/v22.14.0/node-v22.14.0-linux-arm64-musl.tar.xz \
+    -o /tmp/node.tar.xz \
+    && tar -xf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
+    && rm /tmp/node.tar.xz \
+    && node --version && npm --version
 
 # Install OpenClaw
-RUN npm install -g openclaw@latest 2>&1 || echo "Trying with --unsafe-perm" && npm install -g --unsafe-perm openclaw@latest
+RUN npm install -g openclaw@latest
+
+# Cleanup build deps to save space
+RUN apk del make g++ cmake linux-headers
 
 # Create data directory
 RUN mkdir -p /data/openclaw/workspace
